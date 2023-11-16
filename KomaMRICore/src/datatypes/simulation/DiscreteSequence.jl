@@ -2,8 +2,8 @@ struct DiscreteSequence{T<:Real}
     Gx::AbstractVector{T}
     Gy::AbstractVector{T}
     Gz::AbstractVector{T}
-    B1::AbstractVector{Complex{Float32}}
-    Δf::AbstractVector{Complex{Float32}}
+    B1::AbstractVector{Complex{T}}
+    Δf::AbstractVector{T}
     ADC::AbstractVector{Bool}
     t::AbstractVector{T}
     Δt::AbstractVector{T}
@@ -56,9 +56,15 @@ function discretize(seq::Sequence; simParams=default_sim_params())
     Gx, Gy, Gz = get_grads(seq, t)
     tadc       = get_adc_sampling_times(seq)
     ADCflag    = [any(tt .== tadc) for tt in t] #Displaced 1 dt, sig[i]=S(ti+dt)
-    seqd       = DiscreteSequence(Gx, Gy, Gz, complex.(B1), Δf, ADCflag, t, Δt)
+    φ = phase(Δf, Δt)
+    B1 = B1 .* cispi.(φ)
+    seqd       = DiscreteSequence(Gx, Gy, Gz, B1, Δf, ADCflag, t, Δt)
     return seqd
 end
 
 # Returns the phase in radians
-function phase(t, Δt, Δf)
+function phase(Δf, Δt)
+    φ = cumtrapzvec(Δt,real.(Δf) .* 2)
+    append!(φ,0.0) # Since φ(0) = 0
+    return φ
+end    

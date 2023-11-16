@@ -44,3 +44,9 @@ function cumtrapz(Δt::AbstractArray{T}, x::AbstractArray{T}) where {T<:Real}
     y = cumsum(y, dims=2)
     return y
 end
+
+function cumtrapzvec(Δt::AbstractArray{T}, x::AbstractArray{T}) where {T<:Real}
+    y =  (x[2:end] .+ x[end-1]) .* (Δt / 2)
+    y = cumsum(y)
+    return y
+end

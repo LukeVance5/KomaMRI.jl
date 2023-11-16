@@ -341,7 +341,7 @@ Generates a trapezoidal waveform vector.
 	else
 		aux = zeros(size(t))
 	end
-	ComplexF32.(aux)
+	aux
 end
 
 """
